@@ -2,6 +2,13 @@ package org.example.Controllers;
 
 import Dto.CategoryDTO;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import org.example.entities.CategoryEntity;
+import org.example.entities.CategoryViewModel;
+import org.example.repository.CategoryRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,29 +19,34 @@ import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
+@RequestMapping("api/categories")
 public class CategoryController {
 
+    private final CategoryRepository categoryRepository;
     public static List<CategoryDTO> categoryDTOS = new ArrayList<>();
 
-    @GetMapping("/")
-    public List<CategoryDTO> index(){
-        return categoryDTOS;
+    @GetMapping
+    public ResponseEntity<List<CategoryEntity>> index(){
+        var list = categoryRepository.findAll();
+        return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
     @PostMapping("/add")
-    public String createCategory(@RequestBody CategoryDTO categoryDTO){
+    public String createCategory(@RequestBody CategoryViewModel category){
 
-        categoryDTOS.add(categoryDTO);
-        return "added " + categoryDTO.toString();
+        CategoryEntity new_category = new CategoryEntity();
+        new_category.setName(category.getName());
+        categoryRepository.save(new_category);
+        return "added " + category.toString();
     }
 
     @DeleteMapping("/remove")
     public String remove(int id)
     {
-        for (var category :categoryDTOS) {
+        for (var category :categoryRepository.findAll()) {
             if(category.getId() == id)
             {
-                categoryDTOS.remove(category);
+                categoryRepository.deleteById(category.getId());
                 return "removed " + Integer.toString(id);
 
             }
@@ -43,19 +55,19 @@ public class CategoryController {
     }
 
     @PutMapping("/edit")
-    public String edit(@RequestBody CategoryDTO categoryDTO)
+    public String edit(@RequestBody CategoryEntity category_to_edit)
     {
 
-        for (var category :categoryDTOS) {
-            if(category.getId() == categoryDTO.getId())
+        for (var category :categoryRepository.findAll()) {
+            if(category.getId() == category_to_edit.getId())
             {
-                categoryDTOS.remove(category);
-                categoryDTOS.add(categoryDTO);
-                return "added " + categoryDTO.toString();
+                categoryRepository.deleteById(category.getId());
+                categoryRepository.save(category_to_edit);
+                return "added " + category_to_edit.toString();
 
             }
         }
-        return "not found category with " + categoryDTO.getId() + " id";
+        return "not found category with " + category_to_edit.getId() + " id";
 
     }
 }
