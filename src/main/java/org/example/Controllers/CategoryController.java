@@ -36,6 +36,7 @@ public class CategoryController {
 
         CategoryEntity new_category = new CategoryEntity();
         new_category.setName(category.getName());
+        new_category.setDescription(category.getDescription());
         categoryRepository.save(new_category);
         return "added " + category.toString();
     }
@@ -64,10 +65,11 @@ public class CategoryController {
                 categoryRepository.deleteById(category.getId());
                 categoryRepository.save(category_to_edit);
                 return "added " + category_to_edit.toString();
-
             }
         }
         return "not found category with " + category_to_edit.getId() + " id";
 
     }
+
+
 }
