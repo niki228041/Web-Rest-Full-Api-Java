@@ -1,5 +1,6 @@
 package org.example.storage;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -69,6 +70,24 @@ public class FileSystemStorageService implements StorageService{
         } catch (IOException e) {
             throw new StorageExeption("Проблема перетворення та збереження base64", e);
         }
+    }
+
+    @Override
+    public String delete(String filename) {
+       Path imagesPath  = rootLocation.resolve(filename);
+
+        try {
+            Files.delete(imagesPath);
+            System.out.println("File "
+                    + imagesPath.toAbsolutePath().toString()
+                    + " successfully removed");
+        } catch (IOException e) {
+            System.err.println("Unable to delete "
+                    + imagesPath.toAbsolutePath().toString()
+                    + " due to...");
+            e.printStackTrace();
+        }
+        return "hi";
     }
 
 }

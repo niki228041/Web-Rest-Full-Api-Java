@@ -4,8 +4,10 @@ import Dto.CategoryDTO;
 import jakarta.xml.bind.DatatypeConverter;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import org.example.entities.CategoryEditViewModel;
 import org.example.entities.CategoryEntity;
 import org.example.entities.CategoryViewModel;
+import org.example.entities.FindCategoryByIdViewModel;
 import org.example.repository.CategoryRepository;
 import org.example.storage.StorageService;
 import org.springframework.core.io.Resource;
@@ -51,6 +53,21 @@ public class CategoryController {
         return new ResponseEntity<>(list_NEW, HttpStatus.OK);
     }
 
+    @PostMapping("/getCategoryById")
+    public ResponseEntity<CategoryEntity> getCategoryById(@RequestBody FindCategoryByIdViewModel categoryId) throws IOException {
+        var category = categoryRepository.findById(categoryId.getId()).get();
+
+        var filename = category.getPhoto_name();
+        var resource = storageService.loadAsResource(filename);
+
+        var base64 = DatatypeConverter.printBase64Binary(Files.readAllBytes(
+                Paths.get(resource.getFile().toString())));
+
+        var newCategory = new CategoryEntity(category.getId(),category.getName(),category.getDescription(),base64);
+
+        return new ResponseEntity<>(newCategory, HttpStatus.OK);
+    }
+
     @PostMapping("/add")
     public String createCategory(@RequestBody CategoryViewModel category){
 
@@ -65,32 +82,40 @@ public class CategoryController {
     }
 
     @DeleteMapping("/remove")
-    public String remove(int id)
+    public ResponseEntity<String> remove(int id)
     {
         for (var category :categoryRepository.findAll()) {
             if(category.getId() == id)
             {
+                storageService.delete(category.getPhoto_name());
                 categoryRepository.deleteById(category.getId());
-                return "removed " + Integer.toString(id);
+                return new ResponseEntity<>("removed" + Integer.toString(id), HttpStatus.OK);
 
             }
         }
-        return "didn't found category with " + Integer.toString(id) + " id";
+
+        return new ResponseEntity<>( "don`t removed" + Integer.toString(id), HttpStatus.BAD_REQUEST);
     }
 
-    @PutMapping("/edit")
-    public String edit(@RequestBody CategoryEntity category_to_edit)
+    @PostMapping("/edit")
+    public String edit(@RequestBody CategoryEditViewModel category_to_edit)
     {
+        CategoryEntity CategoryEntity_ = categoryRepository.findById(category_to_edit.getId()).get();
 
-        for (var category :categoryRepository.findAll()) {
-            if(category.getId() == category_to_edit.getId())
-            {
-                categoryRepository.deleteById(category.getId());
-                categoryRepository.save(category_to_edit);
-                return "added " + category_to_edit.toString();
-            }
-        }
-        return "not found category with " + category_to_edit.getId() + " id";
+        var filename = storageService.save(category_to_edit.getPhoto());
+        CategoryEntity_.setPhoto_name(filename);
+
+//        categoryRepository.deleteById(oldEntity.getId());
+
+        CategoryEntity_.setName(category_to_edit.getName());
+        CategoryEntity_.setDescription(category_to_edit.getDescription());
+
+
+        categoryRepository.save(CategoryEntity_);
+
+        storageService.delete(CategoryEntity_.getPhoto_name());
+
+        return "added " + category_to_edit.toString();
 
     }
 
