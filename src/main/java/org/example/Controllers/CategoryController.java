@@ -1,43 +1,46 @@
 package org.example.Controllers;
 
-import Dto.CategoryDTO;
+import org.example.entities.Dto.CategoryDTO;
 import jakarta.xml.bind.DatatypeConverter;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import org.example.entities.CategoryEditViewModel;
-import org.example.entities.CategoryEntity;
+import org.example.entities.Dto.CategoryEditDTO;
+import org.example.entities.Entities_Realy.CategoryEntity;
 import org.example.entities.CategoryViewModel;
-import org.example.entities.FindCategoryByIdViewModel;
+import org.example.entities.Dto.FindCategoryByIdDTO;
+import org.example.mapper.CategoryMapper;
 import org.example.repository.CategoryRepository;
 import org.example.storage.StorageService;
-import org.springframework.core.io.Resource;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
 @RequestMapping("api/categories")
 public class CategoryController {
 
+    //Repositories
     private final CategoryRepository categoryRepository;
     private final StorageService storageService;
+
+
+    //mappers
+    private final CategoryMapper categoryMapper;
+
+
     public static List<CategoryDTO> categoryDTOS = new ArrayList<>();
 
     @GetMapping
     public ResponseEntity<List<CategoryEntity>> index() throws IOException {
         var list = categoryRepository.findAll();
         var list_NEW = new ArrayList<CategoryEntity>();
-
+//        var model = categoryMapper.categoryVMByEntities(list);
         for(var category:list){
             var filename = category.getPhoto_name();
             var resource = storageService.loadAsResource(filename);
@@ -54,7 +57,7 @@ public class CategoryController {
     }
 
     @PostMapping("/getCategoryById")
-    public ResponseEntity<CategoryEntity> getCategoryById(@RequestBody FindCategoryByIdViewModel categoryId) throws IOException {
+    public ResponseEntity<CategoryEntity> getCategoryById(@RequestBody FindCategoryByIdDTO categoryId) throws IOException {
         var category = categoryRepository.findById(categoryId.getId()).get();
 
         var filename = category.getPhoto_name();
@@ -90,15 +93,13 @@ public class CategoryController {
                 storageService.delete(category.getPhoto_name());
                 categoryRepository.deleteById(category.getId());
                 return new ResponseEntity<>("removed" + Integer.toString(id), HttpStatus.OK);
-
             }
         }
-
         return new ResponseEntity<>( "don`t removed" + Integer.toString(id), HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping("/edit")
-    public String edit(@RequestBody CategoryEditViewModel category_to_edit)
+    public String edit(@RequestBody CategoryEditDTO category_to_edit)
     {
         CategoryEntity CategoryEntity_ = categoryRepository.findById(category_to_edit.getId()).get();
 
