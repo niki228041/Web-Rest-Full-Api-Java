@@ -10,8 +10,11 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface CategoryMapper {
 
-    CategoryViewModel categoryVMByEntity(CategoryEntity categoryViewModel);
+    CategoryViewModel categoryVMByEntity(CategoryEntity categoryModel);
 
     @Mapping(source = "photo_name",target = "photo")
     List<CategoryViewModel> categoryVMByEntities(List<CategoryEntity> list);
+
+
+    CategoryEntity categoryEntityByVM(CategoryViewModel categoryViewModel);
 }

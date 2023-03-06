@@ -9,24 +9,24 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2023-03-05T14:36:06+0100",
+    date = "2023-03-06T11:32:49+0100",
     comments = "version: 1.5.3.Final, compiler: javac, environment: Java 19.0.2 (Oracle Corporation)"
 )
 @Component
 public class CategoryMapperImpl implements CategoryMapper {
 
     @Override
-    public CategoryViewModel categoryVMByEntity(CategoryEntity categoryViewModel) {
-        if ( categoryViewModel == null ) {
+    public CategoryViewModel categoryVMByEntity(CategoryEntity categoryModel) {
+        if ( categoryModel == null ) {
             return null;
         }
 
-        CategoryViewModel categoryViewModel1 = new CategoryViewModel();
+        CategoryViewModel categoryViewModel = new CategoryViewModel();
 
-        categoryViewModel1.setName( categoryViewModel.getName() );
-        categoryViewModel1.setDescription( categoryViewModel.getDescription() );
+        categoryViewModel.setName( categoryModel.getName() );
+        categoryViewModel.setDescription( categoryModel.getDescription() );
 
-        return categoryViewModel1;
+        return categoryViewModel;
     }
 
     @Override
@@ -41,5 +41,19 @@ public class CategoryMapperImpl implements CategoryMapper {
         }
 
         return list1;
+    }
+
+    @Override
+    public CategoryEntity categoryEntityByVM(CategoryViewModel categoryViewModel) {
+        if ( categoryViewModel == null ) {
+            return null;
+        }
+
+        CategoryEntity categoryEntity = new CategoryEntity();
+
+        categoryEntity.setName( categoryViewModel.getName() );
+        categoryEntity.setDescription( categoryViewModel.getDescription() );
+
+        return categoryEntity;
     }
 }
