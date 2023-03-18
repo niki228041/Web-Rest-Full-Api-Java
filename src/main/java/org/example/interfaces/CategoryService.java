@@ -2,6 +2,7 @@ package org.example.interfaces;
 
 import org.example.entities.CategoryViewModel;
 import org.example.entities.Dto.CategoryEditDTO;
+import org.example.entities.Dto.CreateCategoryWithMultipartFileDTO;
 import org.example.entities.Dto.FindCategoryByIdDTO;
 import org.example.entities.Entities_Realy.CategoryEntity;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import java.util.List;
 
 public interface CategoryService {
     ResponseEntity<String> create(CategoryViewModel model);
+    ResponseEntity<String> createWithMultipart(CreateCategoryWithMultipartFileDTO model);
     ResponseEntity<String> remove(int id);
     ResponseEntity<String> edit (CategoryEditDTO model);
     ResponseEntity<List<CategoryEntity>> index() throws IOException;

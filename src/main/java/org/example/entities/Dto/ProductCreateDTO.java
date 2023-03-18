@@ -1,6 +1,7 @@
 package org.example.entities.Dto;
 
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -14,6 +15,6 @@ public class ProductCreateDTO {
 
     private int category_id;
 
-    private List<String> imagesInBytes;
+    private List<MultipartFile> images;
 
 }

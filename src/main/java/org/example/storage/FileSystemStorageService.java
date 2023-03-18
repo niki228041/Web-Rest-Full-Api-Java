@@ -1,8 +1,8 @@
 package org.example.storage;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,9 +10,14 @@ import java.nio.file.Paths;
 import java.util.Base64;
 
 import java.util.UUID;
+
+import io.swagger.v3.oas.models.media.MediaType;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.imageio.ImageIO;
 
 
 @Service
@@ -66,6 +71,43 @@ public class FileSystemStorageService implements StorageService{
             bytes = decoder.decode(charArray[1]);
             String folder = rootLocation.toString()+"/"+randomFileName;
             new FileOutputStream(folder).write(bytes);
+            return randomFileName;
+        } catch (IOException e) {
+            throw new StorageExeption("Проблема перетворення та збереження base64", e);
+        }
+    }
+
+    @Override
+    public String saveWithMultiePartFile(MultipartFile multipartFile) {
+        try {
+            String ext = "jpg";
+            UUID uuid = UUID.randomUUID();
+            String randomFileName = uuid.toString()+"."+ext;
+
+            byte[] bytes = new byte[0];
+            bytes = multipartFile.getBytes();
+            int [] imageSize = {32,150,300,600,1200};
+
+            try (var byteStream = new ByteArrayInputStream(bytes))
+            {
+                var image = ImageIO.read(byteStream);
+                for (int size : imageSize) {
+
+                    String directory = rootLocation.toString() + "/" + size + "_" + randomFileName;
+
+                    BufferedImage newImg = ImageUtils.resizeImage(image,ext=="jpg"
+                    ?ImageUtils.IMAGE_JPEG : ImageUtils.IMAGE_PNG,size,size);
+
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+                    ImageIO.write(newImg,ext,byteArrayOutputStream);
+                    byte [] newBytes = byteArrayOutputStream.toByteArray();
+                    FileOutputStream out = new FileOutputStream(directory);
+                    out.write(newBytes);
+                    out.close();
+                }
+            }
+
             return randomFileName;
         } catch (IOException e) {
             throw new StorageExeption("Проблема перетворення та збереження base64", e);

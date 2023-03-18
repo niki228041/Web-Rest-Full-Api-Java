@@ -5,6 +5,7 @@ import jakarta.xml.bind.DatatypeConverter;
 import lombok.AllArgsConstructor;
 import org.example.entities.CategoryViewModel;
 import org.example.entities.Dto.CategoryEditDTO;
+import org.example.entities.Dto.CreateCategoryWithMultipartFileDTO;
 import org.example.entities.Dto.FindCategoryByIdDTO;
 import org.example.entities.Entities_Realy.CategoryEntity;
 import org.example.interfaces.CategoryService;
@@ -122,5 +123,12 @@ public class CategoryServiceImpl implements CategoryService {
         return new ResponseEntity<>(newCategory, HttpStatus.OK);
     }
 
+    @Override
+    public ResponseEntity<String> createWithMultipart(CreateCategoryWithMultipartFileDTO model) {
 
+        CategoryEntity new_entity = categoryMapper.createCategoryWithMultipartFileDTO(model);
+        String str =  storageService.saveWithMultiePartFile(model.getPhotoFile());
+
+        return new ResponseEntity<>(str, HttpStatus.OK);
+    }
 }

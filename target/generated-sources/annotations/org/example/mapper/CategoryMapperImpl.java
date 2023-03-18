@@ -4,12 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.processing.Generated;
 import org.example.entities.CategoryViewModel;
+import org.example.entities.Dto.CreateCategoryWithMultipartFileDTO;
 import org.example.entities.Entities_Realy.CategoryEntity;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2023-03-06T11:32:49+0100",
+    date = "2023-03-11T12:22:56+0100",
     comments = "version: 1.5.3.Final, compiler: javac, environment: Java 19.0.2 (Oracle Corporation)"
 )
 @Component
@@ -53,6 +54,20 @@ public class CategoryMapperImpl implements CategoryMapper {
 
         categoryEntity.setName( categoryViewModel.getName() );
         categoryEntity.setDescription( categoryViewModel.getDescription() );
+
+        return categoryEntity;
+    }
+
+    @Override
+    public CategoryEntity createCategoryWithMultipartFileDTO(CreateCategoryWithMultipartFileDTO CreateCategoryWithMultipartFileDTO) {
+        if ( CreateCategoryWithMultipartFileDTO == null ) {
+            return null;
+        }
+
+        CategoryEntity categoryEntity = new CategoryEntity();
+
+        categoryEntity.setName( CreateCategoryWithMultipartFileDTO.getName() );
+        categoryEntity.setDescription( CreateCategoryWithMultipartFileDTO.getDescription() );
 
         return categoryEntity;
     }

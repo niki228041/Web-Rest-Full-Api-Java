@@ -1,6 +1,7 @@
 package org.example.mapper;
 
 import org.example.entities.CategoryViewModel;
+import org.example.entities.Dto.CreateCategoryWithMultipartFileDTO;
 import org.example.entities.Entities_Realy.CategoryEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -17,4 +18,6 @@ public interface CategoryMapper {
 
 
     CategoryEntity categoryEntityByVM(CategoryViewModel categoryViewModel);
+
+    CategoryEntity createCategoryWithMultipartFileDTO(CreateCategoryWithMultipartFileDTO CreateCategoryWithMultipartFileDTO);
 }

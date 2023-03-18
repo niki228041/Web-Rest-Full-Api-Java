@@ -1,5 +1,6 @@
 package org.example.Controllers;
 
+import jakarta.validation.Valid;
 import jakarta.xml.bind.DatatypeConverter;
 import lombok.AllArgsConstructor;
 import org.example.entities.*;
@@ -11,6 +12,7 @@ import org.example.repository.ProductImageRepository;
 import org.example.repository.ProductRepository;
 import org.example.storage.StorageService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,10 +56,11 @@ public class ProductController {
             newProduct.setCategory_id(categoryId);
 
             ArrayList<String> imagesList = new ArrayList<>();
+
             for (var img:product.getProductImages())
             {
 
-                var resource = storageService.loadAsResource(img.getName());
+                var resource = storageService.loadAsResource("1200_" + img.getName());
 
                 var base64 = DatatypeConverter.printBase64Binary(Files.readAllBytes(
                         Paths.get(resource.getFile().toString())));
@@ -87,8 +90,8 @@ public class ProductController {
 //        return new ResponseEntity<>(newCategory, HttpStatus.OK);
 //    }
 
-    @PostMapping("/add")
-    public String createProduct(@RequestBody ProductCreateDTO product){
+    @PostMapping(path = "/add",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public String createProduct(@ModelAttribute ProductCreateDTO product){
 
         ProductEntity new_product = new ProductEntity();
         new_product.setName(product.getName());
@@ -98,13 +101,14 @@ public class ProductController {
         new_product.setCategory(category.get());
         new_product.setCreated(new Date());
         new_product.setDeleted(false);
+
         var productEntity = productRepository.save(new_product);
 
         int iter = 0;
 
-        for(String imageInBytes:product.getImagesInBytes())
+        for(var imageInBytes:product.getImages())
         {
-            String filename = storageService.save(imageInBytes);
+            String filename = storageService.saveWithMultiePartFile(imageInBytes);
             ProductImageEntity imageEntity = new ProductImageEntity();
             imageEntity.setName(filename);
             imageEntity.setProduct(productEntity);
@@ -115,7 +119,6 @@ public class ProductController {
             productImageRepository.save(imageEntity);
             iter++;
         }
-
 
 
         //new_product.setPhoto_name(filename);
@@ -157,6 +160,8 @@ public class ProductController {
 //        return "added " + category_to_edit.toString();
 //
 //    }
+
+
 
 
 }
