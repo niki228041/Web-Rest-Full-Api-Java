@@ -51,6 +51,12 @@ public class ProductController {
         return productService.getById(id);
     }
 
+    @PostMapping("/deleteProductById")
+    public ResponseEntity<String> deleteProductById(@RequestBody FindByIdDTO id) throws IOException {
+
+        return productService.delete(id);
+    }
+
     @PostMapping(path = "/add",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> createProduct(@ModelAttribute ProductCreateDTO product){
         return productService.create(product);

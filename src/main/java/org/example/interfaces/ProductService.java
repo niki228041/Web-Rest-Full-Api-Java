@@ -11,6 +11,9 @@ import java.util.List;
 
 public interface ProductService {
     ResponseEntity<String> create(ProductCreateDTO model);
+
+    ResponseEntity<String> delete(FindByIdDTO productId) throws IOException;
+
 //    ResponseEntity<String> remove(int id);
 //    ResponseEntity<String> edit (CategoryEditDTO model);
     ResponseEntity<List<ProductViewModel>> index() throws IOException;

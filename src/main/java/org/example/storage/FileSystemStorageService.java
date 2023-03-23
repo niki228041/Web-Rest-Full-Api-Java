@@ -115,6 +115,22 @@ public class FileSystemStorageService implements StorageService{
     }
 
     @Override
+    public String deleteWithMultiePartFile(String filename) {
+        int [] imageSize = {32,150,300,600,1200};
+
+        try {
+            for (int size : imageSize) {
+                Path imagesPath  = rootLocation.resolve( size + "_" + filename);
+                Files.delete(imagesPath);
+            }
+        } catch (IOException e) {
+            System.err.println("Unable to delete " + e.toString());
+            e.printStackTrace();
+        }
+        return "Image was deleted";
+    }
+
+    @Override
     public String delete(String filename) {
        Path imagesPath  = rootLocation.resolve(filename);
 

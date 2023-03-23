@@ -13,7 +13,7 @@ public class ProductViewModel {
 
     private String descriprion;
 
-    private int price;
+    private double price;
 
     private int category_id;
 

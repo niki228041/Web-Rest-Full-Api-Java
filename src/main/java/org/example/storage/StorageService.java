@@ -9,5 +9,6 @@ public interface StorageService {
     Resource loadAsResource(String filename);
     String save(String base64);
     public String delete(String filename);
+    public String deleteWithMultiePartFile(String filename);
     public String saveWithMultiePartFile(MultipartFile multipartFile);
 }

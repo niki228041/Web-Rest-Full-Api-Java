@@ -18,6 +18,7 @@ import org.example.repository.ProductImageRepository;
 import org.example.repository.ProductRepository;
 import org.example.storage.StorageService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -81,26 +82,55 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public ResponseEntity<String> delete(FindByIdDTO productId) throws IOException {
+        try {
+            ProductEntity productEntity = productRepository.findById(productId.getId()).get();
+            for (var img:productEntity.getProductImages()) {
+                storageService.deleteWithMultiePartFile(img.getName());
+                productImageRepository.delete(img);
+            }
+            productRepository.delete(productEntity);
+        }
+        catch (Exception ex)
+        {
+            return new ResponseEntity<>("Product was not deleted " + ex.toString(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>("Product with id " + productId.getId().toString() +"Succesfuly deleted ", HttpStatus.OK);
+    }
+
+    @Override
     public ResponseEntity<ProductItemDTO> getById(FindByIdDTO productId) throws IOException {
 
-        var product = productRepository.findById(productId.getId()).get();
-        var product_vm = productMapper.productItemByEntity(product);
-        product_vm.setCategory_id(product.getCategory().getId());
-        var images = new ArrayList<String>();
+        try {
+            var product = productRepository.findById(productId.getId()).get();
 
-        for (var item:product.getProductImages())
+//            var product_vm = productMapper.productItemByEntity(product);
+            var product_vm = new ProductItemDTO();
+
+            product_vm.setCategory_id(product.getCategory().getId());
+            product_vm.setName(product.getName());
+            product_vm.setPrice(product.getPrice());
+            product_vm.setDescriprion(product.getDescriprion());
+            var images = new ArrayList<String>();
+
+            for (var item : product.getProductImages()) {
+                var resource = storageService.loadAsResource("1200_" + item.getName());
+
+                var base64 = DatatypeConverter.printBase64Binary(Files.readAllBytes(
+                        Paths.get(resource.getFile().toString())));
+
+                images.add(base64);
+            }
+
+            product_vm.setImages(images);
+
+            return new ResponseEntity<>(product_vm, HttpStatus.OK);
+        }
+        catch (Exception ex)
         {
-            var resource = storageService.loadAsResource("1200_" + item.getName());
-
-            var base64 = DatatypeConverter.printBase64Binary(Files.readAllBytes(
-                    Paths.get(resource.getFile().toString())));
-
-            images.add(base64);
+            return new ResponseEntity<>(new ProductItemDTO(), HttpStatus.OK);
         }
 
-        product_vm.setImages(images);
-
-        return new ResponseEntity<>(product_vm, HttpStatus.OK);
     }
 
     @Override
