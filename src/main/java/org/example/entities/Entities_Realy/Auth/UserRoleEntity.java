@@ -1,0 +1,24 @@
+package org.example.entities.Entities_Realy.Auth;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name="tbl_user_roles")
+@IdClass(UserRolePK.class)
+public class UserRoleEntity {
+    @Id
+    @ManyToOne
+    @JoinColumn(name="user_id", nullable = false)
+    private UserEntity user;
+    @Id
+    @ManyToOne
+    @JoinColumn(name="role_id", nullable = false)
+    private RoleEntity role;
+}

@@ -1,6 +1,7 @@
 package org.example.Controllers;
 
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AllArgsConstructor;
 import org.example.storage.StorageService;
 import org.springframework.core.io.Resource;
@@ -16,6 +17,7 @@ import java.net.URLEncoder;
 
 @RestController
 @AllArgsConstructor
+@SecurityRequirement(name = "vovan-api")
 public class HomeController {
     private final StorageService storageService;
 

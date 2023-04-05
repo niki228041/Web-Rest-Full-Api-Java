@@ -1,5 +1,11 @@
 package org.example;
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import org.example.interfaces.SeedService;
 import org.example.storage.StorageProperties;
 import org.example.storage.StorageService;
 import org.springframework.boot.CommandLineRunner;
@@ -10,6 +16,8 @@ import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
 @EnableConfigurationProperties(StorageProperties.class)
+@SecurityScheme(name = "vovan-api", scheme = "bearer", type = SecuritySchemeType.HTTP, in = SecuritySchemeIn.HEADER)
+@OpenAPIDefinition(info = @Info(title = "User API", version = "2.0", description = "User Details"))
 public class Main {
     public static void main(String[] args) {
         //System.out.println("Hello JAVA!");
@@ -17,10 +25,12 @@ public class Main {
     }
 
     @Bean
-    CommandLineRunner init(StorageService storageService) {
+    CommandLineRunner init(StorageService storageService, SeedService seedService) {
         return args -> {
             try {
                 storageService.init();
+                seedService.seedRoleData();
+                seedService.seedUserData();
             }catch (Exception ex) {
                 System.out.println("------Хюсто у нас проблеми-----"+ ex.getMessage());
             }

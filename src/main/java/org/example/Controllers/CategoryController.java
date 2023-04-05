@@ -1,5 +1,6 @@
 package org.example.Controllers;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.example.entities.Dto.CategoryDTO;
 import jakarta.xml.bind.DatatypeConverter;
 import lombok.AllArgsConstructor;
@@ -24,7 +25,8 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("api/categories")
+@RequestMapping("/api/categories")
+@SecurityRequirement(name = "vovan-api")
 public class CategoryController {
 
     //Repositories
