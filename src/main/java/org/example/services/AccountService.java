@@ -6,6 +6,7 @@ import org.example.configuration.captcha.GoogleResponse;
 import org.example.configuration.security.JwtService;
 import org.example.constant.Roles;
 import org.example.entities.Dto.Auth.AuthResponseDto;
+import org.example.entities.Dto.Auth.GoogleAuthDto;
 import org.example.entities.Dto.Auth.LoginDto;
 import org.example.entities.Dto.Auth.RegisterDto;
 import org.example.entities.Entities_Realy.Auth.UserEntity;
@@ -19,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestOperations;
 
+import javax.management.relation.Role;
 import java.util.ArrayList;
 
 @Service
@@ -35,7 +37,7 @@ public class AccountService {
     private final RestOperations restTemplate;
     protected static final String RECAPTCHA_URL_TEMPLATE = "https://www.google.com/recaptcha/api/siteverify?secret=%s&response=%s";
 
-    public AuthResponseDto register(RegisterDto request) {
+    public AuthResponseDto register(RegisterDto request,String role_) {
         var user = UserEntity.builder()
                 .firstName(request.getFirstname())
                 .lastName(request.getLastname())
@@ -44,7 +46,7 @@ public class AccountService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
         repository.save(user);
-        var role = roleRepository.findByName(Roles.User);
+        var role = roleRepository.findByName(role_);
         var ur = new UserRoleEntity().builder()
                 .user(user)
                 .role(role)
@@ -78,5 +80,33 @@ public class AccountService {
                 .token(jwtToken)
                 .build();
     }
+
+    public AuthResponseDto login_google(RegisterDto regDto){
+
+        var user = repository.findByEmail(regDto.getEmail());
+        var user_ = user;
+
+        if(user.isPresent())
+        {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            regDto.getEmail(),
+                            regDto.getPassword()
+                    )
+            );
+            var old_user = repository.findByEmail(regDto.getEmail())
+                    .orElseThrow();
+            var jwtToken = jwtService.generateAccessToken(old_user);
+            return AuthResponseDto.builder()
+                    .token(jwtToken)
+                    .build();
+        }
+        else{
+            return register(regDto,Roles.User);
+        }
+
+    }
+
+
 
 }

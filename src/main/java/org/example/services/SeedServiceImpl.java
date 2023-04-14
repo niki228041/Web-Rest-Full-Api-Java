@@ -3,10 +3,12 @@ package org.example.services;
 
 import lombok.AllArgsConstructor;
 import org.example.constant.Roles;
+import org.example.entities.Dto.Auth.RegisterDto;
 import org.example.entities.Entities_Realy.Auth.RoleEntity;
 import org.example.entities.Entities_Realy.Auth.UserEntity;
 import org.example.interfaces.SeedService;
 import org.example.repository.RoleRepository;
+import org.example.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,6 +16,8 @@ import org.springframework.stereotype.Service;
 public class SeedServiceImpl implements SeedService {
 
     RoleRepository roleRepository;
+    UserRepository userRepository;
+    private final AccountService service;
 
     @Override
     public void seedRoleData(){
@@ -34,12 +38,15 @@ public class SeedServiceImpl implements SeedService {
 
     @Override
     public void seedUserData(){
-        var user = new UserEntity().builder()
-                .email("admin@gmail.com")
-                .firstName("Alex")
-                .lastName("Prostitut")
-                .phone("+49 14928319444")
-                .build();
+        if(userRepository.count()==0) {
+            var user = new RegisterDto().builder()
+                    .email("admin@gmail.com")
+                    .lastname("nolastname")
+                    .firstname("noname")
+                    .password("1111")
+                    .build();
 
+            service.register(user, Roles.Admin);
+        }
     }
 }
