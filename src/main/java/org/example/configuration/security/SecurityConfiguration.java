@@ -40,6 +40,7 @@ public class SecurityConfiguration {
                 .requestMatchers("/api/categories/**").permitAll()
                 .requestMatchers(HttpMethod.POST,"/api/categories/**").permitAll()
                 .requestMatchers(HttpMethod.GET,"/api/products").permitAll()
+                .requestMatchers("/api/products/getProductById").permitAll()
                 .requestMatchers("/api/products/add").hasAuthority(Roles.Admin)
                 .requestMatchers("/api/products/deleteProductById").hasAuthority(Roles.Admin)
 //                .anyRequest().authenticated()
