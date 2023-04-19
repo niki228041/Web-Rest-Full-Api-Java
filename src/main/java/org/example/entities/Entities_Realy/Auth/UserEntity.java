@@ -1,10 +1,16 @@
 package org.example.entities.Entities_Realy.Auth;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.entities.Entities_Realy.UserAvatarEntity;
+import org.hibernate.annotations.LazyToOne;
+import org.hibernate.annotations.LazyToOneOption;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,6 +39,11 @@ public class UserEntity{
     private String phone;
     @Column(length = 200, nullable = false)
     private String password;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @LazyToOne(LazyToOneOption.NO_PROXY)
+    private UserAvatarEntity userAvatar;
+
 
     @OneToMany(mappedBy = "user")
     private List<UserRoleEntity> userRoles = new ArrayList<>();

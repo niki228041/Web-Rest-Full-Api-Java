@@ -1,5 +1,6 @@
 package org.example.services;
 
+import jakarta.xml.bind.DatatypeConverter;
 import lombok.RequiredArgsConstructor;
 import org.example.configuration.captcha.CaptchaSettings;
 import org.example.configuration.captcha.GoogleResponse;
@@ -9,29 +10,40 @@ import org.example.entities.Dto.Auth.AuthResponseDto;
 import org.example.entities.Dto.Auth.GoogleAuthDto;
 import org.example.entities.Dto.Auth.LoginDto;
 import org.example.entities.Dto.Auth.RegisterDto;
+import org.example.entities.Dto.AvatarDTO;
+import org.example.entities.Dto.FindByIdDTO;
 import org.example.entities.Entities_Realy.Auth.UserEntity;
 import org.example.entities.Entities_Realy.Auth.UserRoleEntity;
+import org.example.entities.Entities_Realy.UserAvatarEntity;
 import org.example.repository.RoleRepository;
+import org.example.repository.UserAvatarImageRepository;
 import org.example.repository.UserRepository;
 import org.example.repository.UserRoleRepository;
+import org.example.storage.FileSystemStorageService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestOperations;
 
-import javax.management.relation.Role;
-import java.util.ArrayList;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Date;
+
+
 
 @Service
 @RequiredArgsConstructor
 public class AccountService {
     private final UserRepository repository;
     private final RoleRepository roleRepository;
+    private final UserAvatarImageRepository avatarImageRepository;
     private final UserRoleRepository userRoleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final FileSystemStorageService fileSystemStorageService;
 
     private final CaptchaSettings captchaSettings;
     private final RestOperations restTemplate;
@@ -107,6 +119,45 @@ public class AccountService {
 
     }
 
+    public String addAvatar(AvatarDTO avaDto){
 
+        var user = repository.findById(avaDto.getUser_id()).get();
+
+        // удаляем старый аватар, если он существует
+        var oldAvatar = user.getUserAvatar();
+        if (oldAvatar != null) {
+            avatarImageRepository.delete(oldAvatar);
+            user.setUserAvatar(null);
+            repository.save(user);
+        }
+
+            var filename = fileSystemStorageService.saveWithMultiePartFile(avaDto.getImage());
+            var new_avatar = new UserAvatarEntity().builder()
+                    .name(filename)
+                    .user(user)
+                    .isDeleted(false)
+                    .created(new Date())
+                    .build();
+
+            avatarImageRepository.save(new_avatar);
+
+            return filename;
+    }
+
+    public String getAvatar(FindByIdDTO userId) throws IOException {
+
+        var user = repository.findById(userId.getId()).get();
+        var user_ = user;
+
+        var filename = avatarImageRepository.findById(user.getUserAvatar().getId()).get().getName();
+        var img = fileSystemStorageService.loadAsResource(filename);
+
+        var resource = fileSystemStorageService.loadAsResource("1200_" + filename);
+
+        var base64 = DatatypeConverter.printBase64Binary(Files.readAllBytes(
+                Paths.get(resource.getFile().toString())));
+
+        return base64;
+    }
 
 }

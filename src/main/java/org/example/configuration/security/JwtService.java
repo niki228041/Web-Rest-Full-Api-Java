@@ -35,6 +35,7 @@ public class JwtService {
         return Jwts.builder()
                 .setSubject(format("%s,%s", user.getId(), user.getEmail()))
                 .claim("email", user.getEmail())
+                .claim("id", user.getId())
                 //.claim("image", user.getImage())
                 .claim("roles", roles.stream()                                      //витягується списочок ролей, які є у юзера
                         .map((role) -> role.getRole().getName()).toArray(String []:: new))

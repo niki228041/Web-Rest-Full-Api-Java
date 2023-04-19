@@ -6,14 +6,16 @@ import org.example.entities.Dto.Auth.AuthResponseDto;
 import org.example.entities.Dto.Auth.GoogleAuthDto;
 import org.example.entities.Dto.Auth.LoginDto;
 import org.example.entities.Dto.Auth.RegisterDto;
+import org.example.entities.Dto.AvatarDTO;
+import org.example.entities.Dto.FindByIdDTO;
 import org.example.google.GoogleAuthService;
 import org.example.services.AccountService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 
 @RestController
@@ -56,5 +58,24 @@ public class AccountController {
         if(auth==null)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         return ResponseEntity.ok(auth);
+    }
+
+    @PostMapping(path = "/addAvatar",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> addAvatar(
+            @ModelAttribute AvatarDTO request
+    ) {
+        var filename = service.addAvatar(request);
+
+        return ResponseEntity.ok(filename);
+
+    }
+
+
+    @PostMapping(path = "/getAvatar")
+    public ResponseEntity<String> getAvatar(FindByIdDTO userId) throws IOException {
+        var filename = service.getAvatar(userId);
+
+        return ResponseEntity.ok(filename);
+
     }
 }
